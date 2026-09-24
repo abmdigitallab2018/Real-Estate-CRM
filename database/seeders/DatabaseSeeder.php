@@ -33,6 +33,13 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Check if database is already seeded to prevent duplicate entry errors
+        if (SubscriptionPlan::exists()) {
+            $this->command->info('Database is already seeded! Skipping seeder to avoid duplicate entry errors.');
+            $this->command->info('To completely reseed, run: php artisan migrate:fresh --seed');
+            return;
+        }
+
         // 1. Subscription Plans
         $starterPlan = SubscriptionPlan::create([
             'name' => 'Starter Agency',
