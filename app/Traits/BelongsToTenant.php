@@ -11,18 +11,18 @@ trait BelongsToTenant
     protected static function bootBelongsToTenant(): void
     {
         static::addGlobalScope('tenant', function (Builder $builder) {
-            if (Auth::check()) {
+            if (Auth::hasUser()) {
                 $user = Auth::user();
-                if ($user->role !== 'super_admin' && !empty($user->tenant_id)) {
+                if ($user && $user->role !== 'super_admin' && !empty($user->tenant_id)) {
                     $builder->where($builder->getModel()->getTable() . '.tenant_id', $user->tenant_id);
                 }
             }
         });
 
         static::creating(function ($model) {
-            if (Auth::check() && empty($model->tenant_id)) {
+            if (Auth::hasUser() && empty($model->tenant_id)) {
                 $user = Auth::user();
-                if (!empty($user->tenant_id)) {
+                if ($user && !empty($user->tenant_id)) {
                     $model->tenant_id = $user->tenant_id;
                 }
             }

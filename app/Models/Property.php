@@ -60,8 +60,6 @@ class Property extends Model
         'rent_amount' => 'decimal:2',
         'security_deposit' => 'decimal:2',
         'maintenance_charges' => 'decimal:2',
-        'carpet_area' => 'decimal:2',
-        'built_up_area' => 'decimal:2',
         'is_negotiable' => 'boolean',
         'is_featured' => 'boolean',
         'is_published' => 'boolean',
@@ -69,6 +67,18 @@ class Property extends Model
         'latitude' => 'decimal:7',
         'longitude' => 'decimal:7',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function ($property) {
+            if (empty($property->slug) && !empty($property->title)) {
+                $property->slug = \Illuminate\Support\Str::slug($property->title) . '-' . \Illuminate\Support\Str::random(6);
+            }
+            if (empty($property->property_code)) {
+                $property->property_code = 'PROP-' . strtoupper(\Illuminate\Support\Str::random(6));
+            }
+        });
+    }
 
     public function owner()
     {

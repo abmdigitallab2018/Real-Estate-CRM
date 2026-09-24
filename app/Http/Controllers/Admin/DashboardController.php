@@ -101,7 +101,7 @@ class DashboardController extends Controller
         // 7. Agent Performance Summary (for managers/admins)
         $agentPerformance = [];
         if (!$user->isAgent() && !$user->isCustomer()) {
-            $agents = User::whereIn('role', ['agent', 'sales_manager', 'agency_admin'])->get();
+            $agents = User::where('tenant_id', $user->tenant_id)->whereIn('role', ['agent', 'sales_manager', 'agency_admin'])->get();
             foreach ($agents as $agent) {
                 $agentLeads = Lead::where('assigned_agent_id', $agent->id)->count();
                 $agentVisits = SiteVisit::where('assigned_agent_id', $agent->id)->where('status', 'completed')->count();

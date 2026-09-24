@@ -29,6 +29,15 @@ class PipelineStage extends Model
         'is_lost' => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function ($stage) {
+            if (empty($stage->slug) && !empty($stage->name)) {
+                $stage->slug = \Illuminate\Support\Str::slug($stage->name);
+            }
+        });
+    }
+
     public function pipeline()
     {
         return $this->belongsTo(Pipeline::class);

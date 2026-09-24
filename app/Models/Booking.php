@@ -41,6 +41,15 @@ class Booking extends Model
         'refund_amount' => 'decimal:2',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function ($booking) {
+            if (empty($booking->booking_number)) {
+                $booking->booking_number = 'BKG-' . date('Y') . '-' . strtoupper(\Illuminate\Support\Str::random(6));
+            }
+        });
+    }
+
     public function property()
     {
         return $this->belongsTo(Property::class);

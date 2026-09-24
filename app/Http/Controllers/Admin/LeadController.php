@@ -320,8 +320,17 @@ class LeadController extends Controller
         // 3. Optionally create Deal
         $deal = null;
         if (!empty($validated['create_deal'])) {
-            $pipelineId = $validated['pipeline_id'] ?? Pipeline::where('is_default', true)->value('id') ?? Pipeline::value('id');
-            $stageId = $validated['stage_id'] ?? PipelineStage::where('pipeline_id', $pipelineId)->orderBy('order')->value('id');
+            $pipeline = Pipeline::firstOrCreate(
+                ['tenant_id' => $lead->tenant_id, 'is_default' => true],
+                ['name' => 'Standard Sales Pipeline', 'deal_type' => 'sale']
+            );
+            $pipelineId = $validated['pipeline_id'] ?? $pipeline->id;
+
+            $stage = PipelineStage::firstOrCreate(
+                ['tenant_id' => $lead->tenant_id, 'pipeline_id' => $pipelineId, 'order' => 1],
+                ['name' => 'New Opportunity', 'probability' => 20, 'is_won' => false, 'is_lost' => false]
+            );
+            $stageId = $validated['stage_id'] ?? $stage->id;
 
             $dealCount = Deal::count() + 1;
             $dealCode = 'DEAL-' . date('Y') . '-' . str_pad((string) $dealCount, 3, '0', STR_PAD_LEFT);
